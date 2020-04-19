@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DattingApp.API.Data;
 using System.Threading.Tasks;
+using AutoMapper;
+using DattingApp.API.DTOs;
+using System.Collections.Generic;
 
 namespace DattingApp.API.Controllers
 {
@@ -11,9 +14,11 @@ namespace DattingApp.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IDattingRepository repo;
+        private readonly IMapper mapper;
 
-        public UsersController(IDattingRepository repo)
+        public UsersController(IDattingRepository repo, IMapper mapper)
         {
+            this.mapper = mapper;
             this.repo = repo;
         }
 
@@ -21,14 +26,16 @@ namespace DattingApp.API.Controllers
         public async Task<IActionResult> GetUsers()
         {
             var users = await repo.GetUsers();
-            return Ok(users);
+            var usersToReturn = mapper.Map<IEnumerable<UserForListDto>>(users);
+            return Ok(usersToReturn);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
             var user = await repo.GetUser(id);
-            return Ok(user);
+            var userToReturn = mapper.Map<UserForDetailedDto>(user);
+            return Ok(userToReturn);
         }
 
     }
